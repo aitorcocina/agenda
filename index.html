@@ -108,7 +108,7 @@ h2.sec button{font-size:13px;letter-spacing:0;text-transform:none;color:var(--ac
 
 /* ---------- barra de abajo ---------- */
 nav.tabs{position:fixed;left:0;right:0;bottom:0;z-index:20;padding:8px 10px calc(var(--bot) + 8px);background:rgba(251,248,245,.86);backdrop-filter:blur(18px);-webkit-backdrop-filter:blur(18px);border-top:1px solid rgba(239,233,241,.9)}
-nav.tabs .in{max-width:620px;margin:0 auto;display:grid;grid-template-columns:repeat(5,1fr);align-items:end}
+nav.tabs .in{max-width:620px;margin:0 auto;display:grid;grid-template-columns:repeat(4,1fr);align-items:end}
 nav.tabs button{display:flex;flex-direction:column;align-items:center;gap:3px;font-size:11px;font-weight:500;color:var(--muted);padding:4px 0}
 nav.tabs button.on{color:var(--ink)}
 nav.tabs .centro{position:relative;top:-14px}
@@ -332,7 +332,6 @@ nav.tabs .centro svg.i{width:28px;height:28px;stroke-width:2.2}
 <nav class="tabs"><div class="in">
   <button data-tab="hoy" class="on"><svg class="i"><use href="#i-sol"/></svg>Hoy</button>
   <button data-tab="cal"><svg class="i"><use href="#i-cal"/></svg>Calendario</button>
-  <button class="centro" data-abrir="apuntar" aria-label="Apuntar"><div><svg class="i"><use href="#i-mas"/></svg></div></button>
   <button data-tab="notas"><svg class="i"><use href="#i-nota"/></svg>Notas</button>
   <button data-tab="compra"><svg class="i"><use href="#i-bolsa"/></svg>Compra</button>
 </div></nav>
@@ -409,6 +408,6 @@ nav.tabs .centro svg.i{width:28px;height:28px;stroke-width:2.2}
 </svg>
 
 <script src="nlp.js?v=2"></script>
-<script src="app.js?v=6"></script>
+<script src="app.js?v=7"></script>
 </body>
 </html>

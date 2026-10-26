@@ -351,7 +351,7 @@
           l.slice(0, 3).map(function (i) { return '<div><span>' + (i.hora || '·') + '</span>' + emoji(i) + ' ' + esc(i.titulo) + '</div>'; }).join('') + (l.length > 3 ? '<div style="color:var(--muted)">y ' + (l.length - 3) + ' más</div>' : '') + '</div></button>';
       }
       html += '<h2 class="sec"><span>Próximas citas</span><button data-tab-go="cal">Ver calendario</button></h2>' +
-        (prox || '<div class="vacio">No tienes nada apuntado para los próximos días.<br>Toca el + para apuntar.</div>');
+        (prox || '<div class="vacio">No tienes nada apuntado para los próximos días.<br>Apúntalo en la caja de arriba.</div>');
       var nCom = items.filter(function (i) { return i.tipo === 'compra' && !i.hecho; }).length;
       var nNot = items.filter(function (i) { return i.tipo === 'nota'; }).length;
       html += '<div class="atajos"><button data-tab-go="compra">🛒 ' + (nCom ? nCom + ' en la compra' : 'Compra') + '</button><button data-tab-go="notas">📝 ' + (nNot ? nNot + (nNot === 1 ? ' nota' : ' notas') : 'Notas') + '</button></div>';
