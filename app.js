@@ -353,8 +353,8 @@
       html += '<h2 class="sec"><span>Próximas citas</span><button data-tab-go="cal">Ver calendario</button></h2>' +
         (prox || '<div class="vacio">No tienes nada apuntado para los próximos días.<br>Toca el + para apuntar.</div>');
       var nCom = items.filter(function (i) { return i.tipo === 'compra' && !i.hecho; }).length;
-      var nNot = items.filter(function (i) { return i.tipo === 'nota'; }).length;
-      html += '<div class="atajos"><button data-tab-go="compra">🛒 ' + (nCom ? nCom + ' en la compra' : 'Compra') + '</button><button data-tab-go="notas">📝 ' + (nNot ? nNot + (nNot === 1 ? ' nota' : ' notas') : 'Notas') + '</button></div>';
+      var nRec = items.filter(function (i) { return i.tipo === 'tarea' && !i.hecho; }).length;
+      html += '<div class="atajos"><button data-tab-go="compra">🛒 ' + (nCom ? nCom + ' en la compra' : 'Compra') + '</button><button data-tab-go="tareas">✅ ' + (nRec ? nRec + (nRec === 1 ? ' recado' : ' recados') : 'Recados') + '</button></div>';
     }
     $('#hoyLista').innerHTML = html;
     var pendHoy = delDia(hoy).filter(function (i) { return !i.hecho; }).length;
