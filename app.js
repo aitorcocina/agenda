@@ -339,17 +339,22 @@
     html += '<h2 class="sec"><span>' + (esHoy ? 'Tu día' : fechaLarga(diaSel)) + '</span>' + (esHoy ? '' : '<button data-sel="' + hoy + '">Volver a hoy</button>') + '</h2>' + lineaDia(diaSel);
 
     if (esHoy) {
-      var prox = '';
-      for (var k = 1; k <= 7; k++) {
+      // Próximas citas: lo siguiente que tienes apuntado (citas y recados con fecha), sin límite de semana
+      var prox = '', n = 0, dias = 0;
+      for (var k = 1; k <= 400 && n < 8 && dias < 6; k++) {
         var d = new Date(h); d.setDate(d.getDate() + k); var s = ymd(d);
         var l = delDia(s).filter(function (i) { return !i.hecho; });
-        if (l.length) prox += '<button class="prox-dia" data-sel="' + s + '"><div class="fch"><small>' + (k === 1 ? 'Mañ' : DSEM[d.getDay()].slice(0, 3)) + '</small><b>' + d.getDate() + '</b></div><div class="lst">' +
+        if (!l.length) continue;
+        dias++; n += l.length;
+        var et = k === 1 ? 'Mañana' : k < 7 ? cap(DSEM[d.getDay()]) : k < 14 ? cap(DSEM[d.getDay()]) + ' que viene' : k < 60 ? 'En ' + Math.round(k / 7) + ' semanas' : 'En ' + Math.round(k / 30) + ' meses';
+        prox += '<button class="prox-dia" data-sel="' + s + '"><div class="fch"><small>' + DSEM[d.getDay()].slice(0, 3) + '</small><b>' + d.getDate() + '</b><small>' + MES[d.getMonth()].slice(0, 3) + '</small></div><div class="lst"><div class="cuando">' + et + '</div>' +
           l.slice(0, 3).map(function (i) { return '<div><span>' + (i.hora || '·') + '</span>' + emoji(i) + ' ' + esc(i.titulo) + '</div>'; }).join('') + (l.length > 3 ? '<div style="color:var(--muted)">y ' + (l.length - 3) + ' más</div>' : '') + '</div></button>';
       }
-      if (prox) html += '<h2 class="sec"><span>Esta semana</span></h2>' + prox;
+      html += '<h2 class="sec"><span>Próximas citas</span><button data-tab-go="cal">Ver calendario</button></h2>' +
+        (prox || '<div class="vacio">No tienes nada apuntado para los próximos días.<br>Toca el + para apuntar.</div>');
       var nCom = items.filter(function (i) { return i.tipo === 'compra' && !i.hecho; }).length;
-      var nSin = items.filter(function (i) { return i.tipo === 'tarea' && !i.hecho && !i.fecha; }).length;
-      html += '<h2 class="sec"><span>De un vistazo</span></h2><div class="mini"><button data-tab-go="compra"><b>' + nCom + '</b><span>en la compra</span></button><button data-tab-go="tareas"><b>' + nSin + '</b><span>recados sin fecha</span></button><button data-tab-go="notas"><b>' + items.filter(function (i) { return i.tipo === 'nota'; }).length + '</b><span>notas</span></button></div>';
+      var nNot = items.filter(function (i) { return i.tipo === 'nota'; }).length;
+      html += '<div class="atajos"><button data-tab-go="compra">🛒 ' + (nCom ? nCom + ' en la compra' : 'Compra') + '</button><button data-tab-go="notas">📝 ' + (nNot ? nNot + (nNot === 1 ? ' nota' : ' notas') : 'Notas') + '</button></div>';
     }
     $('#hoyLista').innerHTML = html;
     var pendHoy = delDia(hoy).filter(function (i) { return !i.hecho; }).length;
