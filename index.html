@@ -234,6 +234,7 @@ nav.tabs .centro svg.i{width:28px;height:28px;stroke-width:2.2}
 .dictar .hl,.dictar textarea{font-size:19px;line-height:1.35;padding:12px 56px 12px 0;white-space:pre-wrap;overflow-wrap:break-word;word-break:normal;letter-spacing:normal;font-family:var(--sans)}
 .dictar .hl{position:absolute;left:16px;right:16px;top:4px;color:transparent;pointer-events:none;min-height:96px}
 .dictar textarea{position:relative;background:transparent;z-index:1}
+.dictar .mic{z-index:2}
 .hl mark{color:transparent;border-radius:6px;padding:1px 0;box-shadow:0 0 0 2px var(--mb)}
 .hl mark.fecha{background:#E3DAFD;--mb:#E3DAFD}
 .hl mark.hora{background:#FFDCE6;--mb:#FFDCE6}
@@ -242,6 +243,12 @@ nav.tabs .centro svg.i{width:28px;height:28px;stroke-width:2.2}
 .hl mark.tipo{background:#E2ECFB;--mb:#E2ECFB}
 .leyenda{display:flex;gap:12px;flex-wrap:wrap;font-size:12px;color:var(--muted);margin:8px 4px 0}
 .leyenda i{display:inline-block;width:10px;height:10px;border-radius:3px;margin-right:4px;vertical-align:-1px}
+
+/* ayuda para dictar con el teclado del iPhone */
+.dicta-ayuda{display:flex;gap:12px;align-items:center;margin-top:10px;padding:12px 14px;border-radius:16px;background:linear-gradient(135deg,#EFE7FF,#FFE6EE);font-size:14px;color:var(--ink2);animation:entra .25s ease}
+.dicta-ayuda span{font-size:26px;animation:late2 1.4s ease-in-out infinite}
+@keyframes late2{0%,100%{transform:scale(1)}50%{transform:scale(1.18)}}
+@media (prefers-color-scheme: dark){.dicta-ayuda{background:linear-gradient(135deg,#2E2645,#3A2533)}}
 
 /* modo oscuro */
 @media (prefers-color-scheme: dark){
@@ -324,6 +331,7 @@ nav.tabs .centro svg.i{width:28px;height:28px;stroke-width:2.2}
   <h2>Apuntar</h2>
   <div class="campo dictar"><div class="hl" id="hl" aria-hidden="true"></div><textarea id="txt" rows="3" placeholder="Dentista el jueves a las 5 y media…" enterkeyhint="done"></textarea>
     <button class="mic" id="bMic" aria-label="Dictar"><svg class="i"><use href="#i-mic"/></svg></button></div>
+  <div class="dicta-ayuda hide" id="dictaAyuda"><span>🎙️</span><div>Toca el <b>micrófono del teclado</b> (abajo, junto al espacio o a la derecha) y habla. Cuando acabes, revisa lo de abajo y dale a Guardar.</div></div>
   <div class="pista" id="pista">Escribe o pulsa el micro y dilo como te salga: <b>«médico el jueves a las 10»</b>, <b>«comprar leche y pan»</b>, <b>«nota: …»</b></div>
   <div id="interp"></div>
   <div class="acciones"><button class="btn sec" id="bMas">Más opciones</button><button class="btn prim" id="bGuardar" disabled>Guardar</button></div>
@@ -384,7 +392,7 @@ nav.tabs .centro svg.i{width:28px;height:28px;stroke-width:2.2}
   <symbol id="i-tipo" viewBox="0 0 24 24"><path d="M4 6h16M4 12h10M4 18h7"/></symbol>
 </svg>
 
-<script src="nlp.js"></script>
-<script src="app.js"></script>
+<script src="nlp.js?v=2"></script>
+<script src="app.js?v=2"></script>
 </body>
 </html>

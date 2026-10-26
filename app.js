@@ -422,6 +422,7 @@
 
   // ---------- hojas ----------
   function abreHoja(id) { $('#velo').classList.add('on'); $(id).classList.add('on'); }
+  if (IOS) { var pi = document.getElementById('pista'); if (pi) pi.innerHTML = 'Toca el <b>🎙️ del teclado</b> y dilo como te salga: <b>«médico el jueves a las 10»</b>, <b>«comprar leche y pan»</b>, <b>«nota: …»</b>'; }
   function cierraHojas() { $('#velo').classList.remove('on'); $$('.hoja').forEach(function (h) { h.classList.remove('on'); }); paraMic(); }
   $('#velo').onclick = cierraHojas;
   $$('.hoja').forEach(function (h) { // deslizar hacia abajo para cerrar
@@ -434,10 +435,13 @@
   // ---------- apuntar rápido ----------
   var borrador = null; // resultado interpretado + retoques del usuario
   var retoques = {};
+  var IOS = /iphone|ipad|ipod/i.test(navigator.userAgent) || (navigator.platform === 'MacIntel' && navigator.maxTouchPoints > 1);
   function abreApuntar(texto, fecha) {
     $('#txt').value = texto || ''; retoques = fecha ? { fecha: fecha } : {};
     interpretar(); abreHoja('#hApuntar');
-    setTimeout(function () { $('#txt').focus(); }, 330);
+    // en el iPhone el teclado solo sale si el foco se pone en el mismo toque
+    try { $('#txt').focus({ preventScroll: true }); } catch (e) { $('#txt').focus(); }
+    if (!IOS) setTimeout(function () { $('#txt').focus(); }, 330);
   }
   function resaltar(r) {
     var raw = $('#txt').value, hl = $('#hl');
@@ -538,10 +542,14 @@
   // ---------- dictado ----------
   var SR = window.SpeechRecognition || window.webkitSpeechRecognition, rec = null;
   function paraMic() { if (rec) { try { rec.stop(); } catch (e) {} } rec = null; $('#bMic').classList.remove('on'); }
+  function ayudaTeclado(ver) { var a = $('#dictaAyuda'); if (a) a.classList.toggle('hide', !ver); }
+  $('#txt').addEventListener('input', function () { ayudaTeclado(false); });
   $('#bMic').onclick = function () {
     var ta = $('#txt');
     if (rec) { paraMic(); return; }
-    if (!SR) { ta.focus(); toast('Usa el micro del teclado 🎙️'); return; }
+    // En el iPhone, dentro de una app de la pantalla de inicio, el dictado de la web no funciona:
+    // se abre el teclado y se usa su micrófono, que es el de Siri y va muy bien.
+    if (IOS || !SR) { ta.focus(); ayudaTeclado(true); return; }
     try {
       rec = new SR(); rec.lang = 'es-ES'; rec.interimResults = true; rec.continuous = false;
       var base = ta.value ? ta.value.replace(/\s*$/, ' ') : '';
@@ -549,10 +557,10 @@
         var t = ''; for (var i = 0; i < ev.results.length; i++) t += ev.results[i][0].transcript;
         ta.value = base + t; interpretar();
       };
-      rec.onerror = function (ev) { if (ev.error === 'not-allowed' || ev.error === 'service-not-allowed') { toast('Sin permiso de micro. Usa el del teclado 🎙️'); ta.focus(); } paraMic(); };
+      rec.onerror = function (ev) { if (ev.error === 'not-allowed' || ev.error === 'service-not-allowed') { ayudaTeclado(true); } paraMic(); };
       rec.onend = function () { paraMic(); };
       rec.start(); $('#bMic').classList.add('on');
-    } catch (e) { paraMic(); ta.focus(); toast('Usa el micro del teclado 🎙️'); }
+    } catch (e) { paraMic(); ta.focus(); ayudaTeclado(true); }
   };
 
   // ---------- editar ----------
