@@ -428,7 +428,7 @@
   // ---------- hojas ----------
   function abreHoja(id) { $('#velo').classList.add('on'); $(id).classList.add('on'); }
   if (IOS) { var pi = document.getElementById('pista'); if (pi) pi.innerHTML = 'Toca el <b>🎙️ del teclado</b> y dilo como te salga: <b>«médico el jueves a las 10»</b>, <b>«comprar leche y pan»</b>, <b>«nota: …»</b>'; }
-  function cierraHojas() { $('#velo').classList.remove('on'); $$('.hoja').forEach(function (h) { h.classList.remove('on'); }); paraMic(); }
+  function cierraHojas() { $('#velo').classList.remove('on'); $$('.hoja').forEach(function (h) { h.classList.remove('on'); }); paraMic(); if (typeof paraMicN === 'function') paraMicN(); }
   $('#velo').onclick = cierraHojas;
   $$('.hoja').forEach(function (h) { // deslizar hacia abajo para cerrar
     var y0 = null;
@@ -574,6 +574,7 @@
     editando = JSON.parse(JSON.stringify(it)); esNuevo = !!nuevoItem;
     $('#eTit').value = editando.titulo || ''; $('#eNotas').value = editando.notas || '';
     $('#eBorrar').classList.toggle('hide', esNuevo);
+    $('#eAyuda').classList.add('hide');
     pintaEditar(); abreHoja('#hEditar');
   }
   function pintaEditar() {
@@ -596,6 +597,11 @@
     if (e.tipo === 'nota') h += '<div class="campo" style="margin-top:14px"><div class="toggle"><span>Fijar arriba</span><button class="sw' + (e.fijada ? ' on' : '') + '" data-x="fijar"></button></div></div>';
     $('#eCuando').innerHTML = h;
     $('#eNotas').rows = e.tipo === 'nota' ? 8 : 3;
+    // en las notas el texto va arriba, justo debajo del título; en lo demás, abajo
+    var caja = $('#eNotas').parentNode, ayuda = $('#eAyuda'), cuando = $('#eCuando');
+    if (e.tipo === 'nota') { cuando.parentNode.insertBefore(caja, cuando); cuando.parentNode.insertBefore(ayuda, cuando); }
+    else { cuando.parentNode.insertBefore(ayuda, cuando.nextSibling); cuando.parentNode.insertBefore(caja, ayuda); }
+    $('#eNotas').placeholder = e.tipo === 'nota' ? 'Escribe o dicta la nota…' : 'Notas, dirección, lo que haga falta…';
   }
   $('#eTipo').onclick = function (ev) { var b = ev.target.closest('button'); if (!b) return; editando.tipo = b.dataset.t; if (b.dataset.t === 'cita' && !editando.fecha) editando.fecha = ymd(hoyD()); editando.avisos = avisosPorDefecto(editando); pintaEditar(); };
   $('#eCuando').addEventListener('click', function (ev) {
@@ -660,6 +666,29 @@
     $('#comInput').value = '';
   };
   $('#notaNueva').onclick = function () { abreEditar(nuevo({ tipo: 'nota' }), true); };
+  // nota por voz: abre una nota nueva con el teclado ya preparado para dictar
+  $('#notaVoz').onclick = function () {
+    abreEditar(nuevo({ tipo: 'nota' }), true);
+    var ta = $('#eNotas'); try { ta.focus({ preventScroll: true }); } catch (e) { ta.focus(); }
+    if (IOS || !SR) $('#eAyuda').classList.remove('hide'); else $('#eMic').click();
+  };
+  // micrófono en el texto de cualquier cosa (notas, dirección…)
+  var recN = null;
+  function paraMicN() { if (recN) { try { recN.stop(); } catch (e) {} } recN = null; $('#eMic').classList.remove('on'); }
+  $('#eNotas').addEventListener('input', function () { $('#eAyuda').classList.add('hide'); });
+  $('#eMic').onclick = function () {
+    var ta = $('#eNotas');
+    if (recN) { paraMicN(); return; }
+    if (IOS || !SR) { ta.focus(); $('#eAyuda').classList.remove('hide'); return; }
+    try {
+      recN = new SR(); recN.lang = 'es-ES'; recN.interimResults = true; recN.continuous = true;
+      var base = ta.value ? ta.value.replace(/\s*$/, ' ') : '';
+      recN.onresult = function (ev) { var t = ''; for (var i = 0; i < ev.results.length; i++) t += ev.results[i][0].transcript; ta.value = base + t; };
+      recN.onerror = function () { paraMicN(); ta.focus(); $('#eAyuda').classList.remove('hide'); };
+      recN.onend = paraMicN;
+      recN.start(); $('#eMic').classList.add('on');
+    } catch (e) { paraMicN(); ta.focus(); $('#eAyuda').classList.remove('hide'); }
+  };
 
   // ---------- notificaciones push ----------
   var pushActivo = false;
