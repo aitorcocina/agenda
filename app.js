@@ -47,9 +47,14 @@
     if (dd === 0) return 'Hoy'; if (dd === 1) return 'Mañana'; if (dd === -1) return 'Ayer';
     return cap(DSEM[d.getDay()].slice(0, 3)) + ' ' + d.getDate() + ' ' + MES[d.getMonth()].slice(0, 3);
   }
-  function avTexto(min, conHora) {
+  function avTexto(min, conHora, it) {
     var l = (conHora ? AV_HORA : AV_DIA).filter(function (a) { return a[0] === min; })[0];
     if (l) return l[1];
+    if (it && it.fecha) { // aviso a una hora concreta (p. ej. partidos: el día antes a las 10:00)
+      var hm2 = (it.hora || '09:00').split(':'), f = aFecha(it.fecha); f.setHours(+hm2[0], +hm2[1] - min, 0, 0);
+      var dd = Math.round((aFecha(it.fecha) - aFecha(ymd(f))) / 864e5);
+      return (dd === 0 ? 'Ese día' : dd === 1 ? 'Día antes' : dd + ' días antes') + ', ' + pad(f.getHours()) + ':' + pad(f.getMinutes());
+    }
     if (min % 1440 === 0) return (min / 1440) + ' días'; if (min % 60 === 0) return (min / 60) + ' h'; return min + ' min';
   }
 
@@ -221,7 +226,7 @@
     if (opt.conFecha && it.fecha) meta.push('<span class="chip"><svg class="i"><use href="#i-fecha"/></svg>' + fechaCorta(it.fecha) + '</span>');
     if (c) meta.push('<span class="chip" style="--cb:' + c.cb + ';--ct:' + c.ct + '">' + c.n + '</span>');
     if (it.repetir && it.repetir !== 'no') meta.push('<span class="chip"><svg class="i"><use href="#i-repetir"/></svg>' + REP.filter(function (r) { return r[0] === it.repetir; })[0][1] + '</span>');
-    if (it.avisos && it.avisos.length && it.fecha && !it.hecho) meta.push('<span class="chip"><svg class="i"><use href="#i-campana"/></svg>' + it.avisos.map(function (a) { return avTexto(a, !!it.hora); }).join(', ') + '</span>');
+    if (it.avisos && it.avisos.length && it.fecha && !it.hecho) meta.push('<span class="chip"><svg class="i"><use href="#i-campana"/></svg>' + it.avisos.map(function (a) { return avTexto(a, !!it.hora, it); }).join(', ') + '</span>');
     var izq = it.tipo === 'cita'
       ? '<div class="barra"></div><div class="hora">' + (it.hora ? hhmm(it.hora) : '<small>Todo<br>el día</small>') + '</div>'
       : '<button class="check" data-check="' + it.id + '" aria-label="Hecho"><svg viewBox="0 0 24 24" fill="none"><path d="M5 12.5l4.5 4.5L19 7.5"/></svg></button>';
@@ -259,7 +264,7 @@
     var meta = [], c = CAT[it.categoria];
     if (c) meta.push('<span class="chip" style="--cb:' + c.cb + ';--ct:' + c.ct + '">' + c.n + '</span>');
     if (it.repetir && it.repetir !== 'no') meta.push('<span class="chip"><svg class="i"><use href="#i-repetir"/></svg>' + REP.filter(function (r) { return r[0] === it.repetir; })[0][1] + '</span>');
-    if (it.avisos && it.avisos.length && it.fecha && !it.hecho) meta.push('<span class="chip"><svg class="i"><use href="#i-campana"/></svg>' + it.avisos.map(function (a) { return avTexto(a, !!it.hora); }).join(', ') + '</span>');
+    if (it.avisos && it.avisos.length && it.fecha && !it.hecho) meta.push('<span class="chip"><svg class="i"><use href="#i-campana"/></svg>' + it.avisos.map(function (a) { return avTexto(a, !!it.hora, it); }).join(', ') + '</span>');
     return meta.length ? '<div class="meta">' + meta.join('') + '</div>' : '';
   }
   // línea del día: sin hora arriba, luego las horas con la marca de "ahora" y los huecos libres
